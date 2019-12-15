@@ -8,8 +8,8 @@ mqttuser = "8fe579d0-e59d-4b58-9d47-0ada346b60a4:d8ee10e9-c01d-4970-a5bf-1aa7b5b
 mqttpass = "bewBFfQO0SC9cL4PGlkLkt2kI"
 
 # mongodb
-client = pymongo.MongoClient('')
-db = client['']
+client = pymongo.MongoClient('mongodb://6c89938c-6b23-4f73-9c2b-7b3d390e2dec:DoAHSLsWsGgyim71Ke8G0D2Nb@40.83.74.54:27017/32580e61-969a-4b67-b31d-db0faa896b23')
+db = client['32580e61-969a-4b67-b31d-db0faa896b23']
 
 from flask import Flask
 
