@@ -1,5 +1,8 @@
 import feedparser
 import paho.mqtt.client as mqtt
+import datetime
+import pymongo
+import json
 import time
 
 #mqtt
@@ -11,7 +14,7 @@ mqttpass = "bewBFfQO0SC9cL4PGlkLkt2kI"
 client = pymongo.MongoClient('mongodb://6c89938c-6b23-4f73-9c2b-7b3d390e2dec:DoAHSLsWsGgyim71Ke8G0D2Nb@40.83.74.54:27017/32580e61-969a-4b67-b31d-db0faa896b23')
 db = client['32580e61-969a-4b67-b31d-db0faa896b23']
 
-from flask import Flask
+from flask import Flask, jsonify, request, abort
 
 app = Flask(__name__)
 
@@ -43,8 +46,8 @@ def on_message(client, userdata, msg):
     ti = datetime.datetime.now()
     topic = msg.topic
     data = msg.payload.decode()
-    temp_id = collection.insert({'date':ti, 'topic': topic, 'data': data})
-    new_temp = collection.find_one({'_id': temp_id})
+    temp_id = db.pymongobin.insert({'date':ti, 'topic': topic, 'data': data})
+    new_temp = db.pymongobin.find_one({'_id': temp_id})
     output = {'date': new_temp['date'],
             'topic': new_temp['topic'], 'data': new_temp['data']}
     print(output)
@@ -56,6 +59,38 @@ client.on_message = on_message
 client.connect(mqtthost, 1883, 60)
 client.loop_start()
 
+#for i in range(1, 21):
+#    db.pymongoTest.insert({'i':i})
 
+# flask gui len 127.0.0.1:5000/temp
+@app.route('/temp', methods=['GET'])
+def get_all_temps():
+    output = []
+    for s in db.pymongobin.find():
+        output.append(
+                {'date':s['date'], 'topic': s['topic'], 'data': s['data']})
+    return jsonify({'result': output})
+
+@app.route('/insert', methods=['POST'])
+def insert_data():
+    if not request.json:
+        abort(400)
+    ti = datetime.datetime.now()
+    #ti = int(round(time.time() * 1000))
+    topic = request.json['topic']
+    data = request.json['data']
+    temp_id = db.pymongobin.insert({'date':ti, 'topic': topic, 'data': data})
+    new_temp = db.pymongobin.find_one({'_id': temp_id})
+    output = {'date': new_temp['date'],
+            'topic': new_temp['topic'],
+            'data': new_temp['data']}
+    return jsonify({'result': output})
+#result = db.pymongobin.aggregate([
+#        {"$project":{"date":0, "topic":1, "data":1}},
+#        {'$group':{'_id':'$topic', 'count':'$data'}},
+#        {'$sort':{'count':-1}},
+#        {'$limit':5}
+#    ])
+#result.next()
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
