@@ -2,9 +2,9 @@ import feedparser
 import paho.mqtt.client as mqtt
 import time
 
-mqtthost = ""
-mqttuser = ""
-mqttpass = ""
+mqtthost = "40.81.27.10"
+mqttuser = "8fe579d0-e59d-4b58-9d47-0ada346b60a4:d8ee10e9-c01d-4970-a5bf-1aa7b5b8f882"
+mqttpass = "bewBFfQO0SC9cL4PGlkLkt2kI"
 
 from flask import Flask
 
